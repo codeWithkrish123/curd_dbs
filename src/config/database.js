@@ -1,16 +1,15 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-let client;
 let db;
 
 // Database connection function
 const connectDB = async () => {
   try {
-    if (client && db) {
-      return { client, db };
+    if (db) {
+      return db;
     }
 
     const mongoURI = process.env.MONGODB_URI;
@@ -19,13 +18,10 @@ const connectDB = async () => {
       throw new Error('MONGODB_URI is not defined in environment variables');
     }
 
-    client = new MongoClient(mongoURI);
-    await client.connect();
-
-    db = client.db(); // Use default database from connection string
+    await mongoose.connect(mongoURI);
     console.log('MongoDB Connected Successfully');
 
-    return { client, db };
+    return db;
   } catch (error) {
     console.error('Database connection error:', error.message);
     throw error;
@@ -40,20 +36,11 @@ const getDB = () => {
   return db;
 };
 
-// Get client instance
-const getClient = () => {
-  if (!client) {
-    throw new Error('Database not connected. Call connectDB first.');
-  }
-  return client;
-};
-
 // Close database connection
 const closeDB = async () => {
   try {
-    if (client) {
-      await client.close();
-      client = null;
+    if (db) {
+      await db.close();
       db = null;
       console.log('Database connection closed');
     }
@@ -66,6 +53,5 @@ const closeDB = async () => {
 module.exports = {
   connectDB,
   getDB,
-  getClient,
   closeDB
 };

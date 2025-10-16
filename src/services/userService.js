@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const { getDB } = require('../config/database');
 
